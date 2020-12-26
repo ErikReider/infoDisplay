@@ -3,5 +3,6 @@
     "compile-hero.typescript-output-directory": "./",
     "compile-hero.less-output-directory": "./",
     "git.ignoreLimitWarning": true,
-    "prettier.tabWidth": 4
+    "prettier.tabWidth": 4,
+    "prettier.printWidth": 120
 }

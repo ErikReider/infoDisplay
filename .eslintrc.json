@@ -33,6 +33,6 @@
             "always"
         ],
         "arrow-parens": "error",
-        "no-empty-function": "warn",
+        "no-empty-function": "warn"
     }
 }

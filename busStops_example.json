@@ -1,3 +1,5 @@
-[
-    "url"
-]
+{
+    "StopName1": "ApiURl1",
+    "StopName2": "ApiURl2",
+    "StopName3": "ApiURl3"
+}

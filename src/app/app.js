@@ -50,7 +50,6 @@ var env_1 = require("../env/env");
 var node_fetch_1 = require("node-fetch");
 var fs_1 = require("fs");
 var fs = require("fs");
-// import * as weatherCache from "../../cache/weather.json";
 var prod = false;
 function createWindow() {
     var window = new electron_1.BrowserWindow({
@@ -79,59 +78,69 @@ electron_1.app.on("activate", function () {
 electron_1.app.on("ready", function () { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: 
-            // await initWeatherCache();
-            return [4 /*yield*/, initBusCache()];
+            case 0: return [4 /*yield*/, initCache()];
             case 1:
-                // await initWeatherCache();
                 _a.sent();
                 createWindow();
                 return [2 /*return*/];
         }
     });
 }); });
+function initCache() {
+    return __awaiter(this, void 0, void 0, function () {
+        var cacheFolderURL;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    cacheFolderURL = process.cwd() + "/cache";
+                    if (!!fs.existsSync(cacheFolderURL)) return [3 /*break*/, 2];
+                    return [4 /*yield*/, fs_1.promises.mkdir(cacheFolderURL)];
+                case 1:
+                    _a.sent();
+                    _a.label = 2;
+                case 2: return [4 /*yield*/, initWeatherCache()];
+                case 3:
+                    _a.sent();
+                    return [4 /*yield*/, initBusCache()];
+                case 4:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
 // Updates the weather.json cache file every 10 mins with new data
 function initWeatherCache() {
     return __awaiter(this, void 0, void 0, function () {
         function updateCache() {
             return __awaiter(this, void 0, void 0, function () {
-                var _a, _b, _c;
+                var url, _a, _b, _c;
                 return __generator(this, function (_d) {
                     switch (_d.label) {
                         case 0:
+                            url = "https://api.openweathermap.org/data/2.5/weather?q=" + env_1["default"].owmCity + "&appid=" + env_1["default"].owmApiKey;
                             _b = (_a = fs_1.promises).writeFile;
                             _c = [cacheURL];
-                            return [4 /*yield*/, node_fetch_1["default"]("https://api.openweathermap.org/data/2.5/weather?q=" + env_1["default"].owmCity + "&appid=" + env_1["default"].owmApiKey)];
+                            return [4 /*yield*/, node_fetch_1["default"](url)];
                         case 1: return [4 /*yield*/, (_d.sent()).text()];
                         case 2: return [4 /*yield*/, _b.apply(_a, _c.concat([_d.sent()]))];
                         case 3:
                             _d.sent();
-                            console.log("Updated Weather Cache");
                             return [2 /*return*/];
                     }
                 });
             });
         }
-        var cacheURL, _a;
+        var cacheURL;
         var _this = this;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
                     cacheURL = process.cwd() + "/cache/weather.json";
-                    _a = !fs.existsSync(cacheURL);
-                    if (_a) return [3 /*break*/, 2];
-                    return [4 /*yield*/, fs_1.promises.readFile(cacheURL, "utf-8")];
-                case 1:
-                    _a = (_b.sent()) === "";
-                    _b.label = 2;
-                case 2:
-                    if (!_a) return [3 /*break*/, 4];
                     return [4 /*yield*/, updateCache()];
-                case 3:
-                    _b.sent();
-                    _b.label = 4;
-                case 4:
-                    cron.schedule("*/10 * * * *", function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
+                case 1:
+                    _a.sent();
+                    cron.schedule("*/5 * * * *", function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0: return [4 /*yield*/, updateCache()];
                             case 1: return [2 /*return*/, _a.sent()];
@@ -156,14 +165,14 @@ function initBusCache() {
                             _j.label = 1;
                         case 1:
                             _j.trys.push([1, 20, 21, 26]);
-                            _c = __asyncValues(Object.values(env_1["default"].busStops));
+                            _c = __asyncValues(Object.entries(env_1["default"].busStops));
                             _j.label = 2;
                         case 2: return [4 /*yield*/, _c.next()];
                         case 3:
                             if (!(_d = _j.sent(), !_d.done)) return [3 /*break*/, 19];
                             url = _d.value;
                             _f = (_e = JSON).parse;
-                            return [4 /*yield*/, node_fetch_1["default"](new URL(url))];
+                            return [4 /*yield*/, node_fetch_1["default"](new URL(url[1]))];
                         case 4: return [4 /*yield*/, (_j.sent()).json()];
                         case 5: return [4 /*yield*/, _f.apply(_e, [(_j.sent())["Payload"]])];
                         case 6:
@@ -177,7 +186,7 @@ function initBusCache() {
                         case 9:
                             if (!(_h = _j.sent(), !_h.done)) return [3 /*break*/, 11];
                             departure = _h.value;
-                            line = departure["line"]["lineNo"];
+                            line = (departure)["line"]["lineNo"] + "_" + url[0];
                             if (!stops[line])
                                 stops[line] = {};
                             if (!stops[line][departure["area"]])
@@ -223,31 +232,20 @@ function initBusCache() {
                         case 26: return [4 /*yield*/, fs_1.promises.writeFile(cacheURL, JSON.stringify(stops))];
                         case 27:
                             _j.sent();
-                            console.log("Updated Bus Cache");
                             return [2 /*return*/];
                     }
                 });
             });
         }
-        var cacheURL, _a;
+        var cacheURL;
         var _this = this;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
                     cacheURL = process.cwd() + "/cache/busses.json";
-                    _a = !fs.existsSync(cacheURL);
-                    if (_a) return [3 /*break*/, 2];
-                    return [4 /*yield*/, fs_1.promises.readFile(cacheURL, "utf-8")];
-                case 1:
-                    _a = (_b.sent()) === "";
-                    _b.label = 2;
-                case 2:
-                    if (!_a) return [3 /*break*/, 4];
                     return [4 /*yield*/, updateCache()];
-                case 3:
-                    _b.sent();
-                    _b.label = 4;
-                case 4:
+                case 1:
+                    _a.sent();
                     cron.schedule("*/10 * * * * *", function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
                         switch (_a.label) {
                             case 0: return [4 /*yield*/, updateCache()];

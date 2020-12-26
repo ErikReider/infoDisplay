@@ -40,6 +40,7 @@ require("log-timestamp");
 var bus_1 = require("./bus/bus");
 var fs_1 = require("fs");
 var fs = require("fs");
+var chokidar = require("chokidar");
 onload = function () { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -49,11 +50,31 @@ onload = function () { return __awaiter(void 0, void 0, void 0, function () {
                 return [4 /*yield*/, initBusses()];
             case 2:
                 _a.sent();
+                initTime();
                 document.body.style.opacity = "1";
+                document.body.style.transform = "scale(1)";
                 return [2 /*return*/];
         }
     });
 }); };
+function initTime() {
+    var timeElement = document.getElementById("timeElement");
+    var dateMonth = document.getElementById("dateMonth");
+    var dateDay = document.getElementById("dateDay");
+    function updateTime() {
+        var date = new Date();
+        // Clock
+        var hours = ("0" + date.getHours().toString()).slice(-2);
+        var minutes = ("0" + date.getMinutes().toString()).slice(-2);
+        var seconds = ("0" + date.getSeconds().toString()).slice(-2);
+        timeElement.textContent = hours + ":" + minutes + ":" + seconds;
+        // Date
+        dateMonth.textContent = date.toLocaleString("default", { month: "short" });
+        dateDay.textContent = date.getDate().toLocaleString();
+        setTimeout(function () { return updateTime(); }, 1000);
+    }
+    updateTime();
+}
 function initWeather() {
     return __awaiter(this, void 0, void 0, function () {
         function updateWeatherElements() {
@@ -68,7 +89,7 @@ function initWeather() {
                         case 1:
                             rawData = _a.sent();
                             temp = "No data";
-                            iconURL = "../assets/weatherIcons/01d.svg";
+                            iconURL = "";
                             if (!(rawData !== "")) return [3 /*break*/, 3];
                             return [4 /*yield*/, JSON.parse(rawData)];
                         case 2:
@@ -79,7 +100,6 @@ function initWeather() {
                         case 3:
                             weatherImg.src = iconURL;
                             weatherTemp.textContent = temp;
-                            console.log("Updated Weather Elements");
                             return [2 /*return*/];
                     }
                 });
@@ -88,23 +108,17 @@ function initWeather() {
         var cacheURL, weatherImg, weatherTemp;
         var _this = this;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    window.customElements.define("iw-bus", bus_1["default"]);
-                    cacheURL = process.cwd() + "/cache/weather.json";
-                    weatherImg = document.getElementById("weatherImage");
-                    weatherTemp = document.getElementById("weatherTemp");
-                    return [4 /*yield*/, updateWeatherElements()];
-                case 1:
-                    _a.sent();
-                    fs.watch(cacheURL, (function (e, name) { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, updateWeatherElements()];
-                            case 1: return [2 /*return*/, _a.sent()];
-                        }
-                    }); }); }));
-                    return [2 /*return*/];
-            }
+            cacheURL = process.cwd() + "/cache/weather.json";
+            weatherImg = document.getElementById("weatherImage");
+            weatherTemp = document.getElementById("weatherTemp");
+            // Watch for cache file changes
+            chokidar.watch(cacheURL).on("all", (function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, updateWeatherElements()];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            }); }); }));
+            return [2 /*return*/];
         });
     });
 }
@@ -112,31 +126,32 @@ function initBusses() {
     return __awaiter(this, void 0, void 0, function () {
         function updateBusses() {
             return __awaiter(this, void 0, void 0, function () {
-                var rawData, data;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
+                var rawData, busses, _a, _b, _i, busses_1, bus;
+                return __generator(this, function (_c) {
+                    switch (_c.label) {
                         case 0:
                             if (!fs.existsSync(cacheURL))
                                 return [2 /*return*/];
                             return [4 /*yield*/, fs_1.promises.readFile(cacheURL, "utf-8")];
                         case 1:
-                            rawData = _a.sent();
-                            if (!(rawData !== "")) return [3 /*break*/, 3];
+                            rawData = _c.sent();
+                            if (rawData === "" || Object.keys(JSON.parse(rawData)).length == 0) {
+                                allBusses.innerHTML = "<span class=\"noBusses\">No Busses...</span>";
+                                return [2 /*return*/];
+                            }
+                            while (allBusses.lastElementChild) {
+                                allBusses.removeChild(allBusses.lastElementChild);
+                            }
+                            _b = (_a = Object).entries;
                             return [4 /*yield*/, JSON.parse(rawData)];
                         case 2:
-                            data = _a.sent();
-                            Object.entries(data).forEach(function (bus) {
-                                // const busElem = <HTMLDivElement>document.getElementById(bus[0]);
-                                // if (busElem) {
-                                //     // busElem
-                                //     return;
-                                // }
-                                // allBusses.appendChild(new Bus(bus[0], bus[1]));
+                            busses = _b.apply(_a, [_c.sent()]).sort(function (a, b) {
+                                return Number(a[0].split("_")[0]) > Number(b[0].split("_")[0]) ? 1 : -1;
                             });
-                            console.log("Updated Bus Elements");
-                            return [2 /*return*/];
-                        case 3:
-                            console.log("No Busses...");
+                            for (_i = 0, busses_1 = busses; _i < busses_1.length; _i++) {
+                                bus = busses_1[_i];
+                                allBusses.appendChild(new bus_1["default"](bus[0], bus[1]).returnElement());
+                            }
                             return [2 /*return*/];
                     }
                 });
@@ -145,21 +160,16 @@ function initBusses() {
         var cacheURL, allBusses;
         var _this = this;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    cacheURL = process.cwd() + "/cache/busses.json";
-                    allBusses = document.getElementById("allBusses");
-                    return [4 /*yield*/, updateBusses()];
-                case 1:
-                    _a.sent();
-                    fs.watch(cacheURL, (function (e, name) { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
-                        switch (_a.label) {
-                            case 0: return [4 /*yield*/, updateBusses()];
-                            case 1: return [2 /*return*/, _a.sent()];
-                        }
-                    }); }); }));
-                    return [2 /*return*/];
-            }
+            cacheURL = process.cwd() + "/cache/busses.json";
+            allBusses = document.getElementById("allBusses");
+            // Watch for cache file changes
+            chokidar.watch(cacheURL).on("all", (function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, updateBusses()];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            }); }); }));
+            return [2 /*return*/];
         });
     });
 }

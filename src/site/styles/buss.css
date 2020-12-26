@@ -1,0 +1,85 @@
+.bus {
+  background-color: #282828;
+  margin: 10px;
+  padding: 15px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  color: white;
+  border-radius: 5px;
+  min-height: 0;
+}
+.bus .bus_line {
+  border-radius: inherit;
+  width: 160px;
+  box-sizing: border-box;
+  margin-right: 15px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+}
+.bus .bus_line .bus_line_number {
+  font-size: 4em;
+  color: white;
+}
+.bus .bus_line .bus_line_name {
+  font-size: 16px;
+  color: white;
+}
+.bus .bus_text_container {
+  display: inline-flex;
+  flex-direction: column;
+  overflow: hidden;
+  width: 100%;
+}
+.bus .bus_text_container .bus_direction_container {
+  height: 50%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.bus .bus_text_container .bus_direction_container .bus_direction_edge {
+  display: flex;
+  flex-direction: column;
+}
+.bus .bus_text_container .bus_direction_container .bus_direction_start {
+  justify-content: flex-start;
+}
+.bus .bus_text_container .bus_direction_container .bus_direction_start .bus_direction_towards {
+  font-size: 18px;
+  color: #A7A7A7;
+  text-transform: uppercase;
+}
+.bus .bus_text_container .bus_direction_container .bus_direction_start .bus_direction_line {
+  margin-right: 10px;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 40px;
+}
+.bus .bus_text_container .bus_direction_container .bus_direction_end {
+  align-items: flex-end;
+  justify-content: center;
+}
+.bus .bus_text_container .bus_direction_container .bus_direction_end .bus_direction_time {
+  white-space: nowrap;
+  font-size: 35px;
+  font-weight: 500;
+  line-height: 35px;
+}
+.bus .bus_text_container .bus_direction_container .bus_direction_end .bus_direction_time .fas {
+  font-size: 28px;
+  box-sizing: border-box;
+}
+.bus .bus_text_container .bus_direction_container .bus_direction_end .bus_direction_next_time {
+  white-space: nowrap;
+  font-size: 20px;
+}
+.bus .bus_text_container .bus_direction_container .bus_direction_end .bus_direction_next_time .fas {
+  font-size: 18px;
+  box-sizing: border-box;
+}

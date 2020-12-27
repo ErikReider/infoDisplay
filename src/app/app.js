@@ -43,7 +43,6 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
     function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
 };
 exports.__esModule = true;
-require("log-timestamp");
 var electron_1 = require("electron");
 var cron = require("node-cron");
 var env_1 = require("../env/env");

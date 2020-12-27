@@ -12,7 +12,7 @@
     "url": "git+https://github.com/ErikReider/infoDisplay.git"
   },
   "author": "ErikReider",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/ErikReider/infoDisplay/issues"
   },
@@ -37,9 +37,7 @@
     "@types/node": "^14.14.14",
     "chokidar": "^3.4.3",
     "commonjs": "0.0.1",
-    "electron-settings": "^4.0.2",
     "fs": "0.0.1-security",
-    "log-timestamp": "^0.3.0",
     "node-cron": "^2.0.3",
     "node-fetch": "^2.6.1",
     "tsconfig-paths": "^3.9.0",

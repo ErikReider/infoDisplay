@@ -35,8 +35,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __asyncValues = (this && this.__asyncValues) || function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
 exports.__esModule = true;
-require("log-timestamp");
 var bus_1 = require("./bus/bus");
 var fs_1 = require("fs");
 var fs = require("fs");
@@ -108,33 +114,42 @@ function initWeather() {
         var cacheURL, weatherImg, weatherTemp;
         var _this = this;
         return __generator(this, function (_a) {
-            cacheURL = process.cwd() + "/cache/weather.json";
-            weatherImg = document.getElementById("weatherImage");
-            weatherTemp = document.getElementById("weatherTemp");
-            // Watch for cache file changes
-            chokidar.watch(cacheURL).on("all", (function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, updateWeatherElements()];
-                    case 1: return [2 /*return*/, _a.sent()];
-                }
-            }); }); }));
-            return [2 /*return*/];
+            switch (_a.label) {
+                case 0:
+                    cacheURL = process.cwd() + "/cache/weather.json";
+                    weatherImg = document.getElementById("weatherImage");
+                    weatherTemp = document.getElementById("weatherTemp");
+                    return [4 /*yield*/, updateWeatherElements()];
+                case 1:
+                    _a.sent();
+                    // Watch for cache file changes
+                    chokidar.watch(cacheURL, {
+                        awaitWriteFinish: { stabilityThreshold: 2000, pollInterval: 100 }
+                    }).on("change", (function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
+                        switch (_a.label) {
+                            case 0: return [4 /*yield*/, updateWeatherElements()];
+                            case 1: return [2 /*return*/, _a.sent()];
+                        }
+                    }); }); }));
+                    return [2 /*return*/];
+            }
         });
     });
 }
 function initBusses() {
     return __awaiter(this, void 0, void 0, function () {
         function updateBusses() {
+            var e_1, _a;
             return __awaiter(this, void 0, void 0, function () {
-                var rawData, busses, _a, _b, _i, busses_1, bus;
-                return __generator(this, function (_c) {
-                    switch (_c.label) {
+                var rawData, busses, _b, _c, busses_1, busses_1_1, bus, e_1_1;
+                return __generator(this, function (_d) {
+                    switch (_d.label) {
                         case 0:
                             if (!fs.existsSync(cacheURL))
                                 return [2 /*return*/];
                             return [4 /*yield*/, fs_1.promises.readFile(cacheURL, "utf-8")];
                         case 1:
-                            rawData = _c.sent();
+                            rawData = _d.sent();
                             if (rawData === "" || Object.keys(JSON.parse(rawData)).length == 0) {
                                 allBusses.innerHTML = "<span class=\"noBusses\">No Busses...</span>";
                                 return [2 /*return*/];
@@ -142,17 +157,42 @@ function initBusses() {
                             while (allBusses.lastElementChild) {
                                 allBusses.removeChild(allBusses.lastElementChild);
                             }
-                            _b = (_a = Object).entries;
+                            _c = (_b = Object).entries;
                             return [4 /*yield*/, JSON.parse(rawData)];
                         case 2:
-                            busses = _b.apply(_a, [_c.sent()]).sort(function (a, b) {
+                            busses = _c.apply(_b, [_d.sent()]).sort(function (a, b) {
                                 return Number(a[0].split("_")[0]) > Number(b[0].split("_")[0]) ? 1 : -1;
                             });
-                            for (_i = 0, busses_1 = busses; _i < busses_1.length; _i++) {
-                                bus = busses_1[_i];
-                                allBusses.appendChild(new bus_1["default"](bus[0], bus[1]).returnElement());
-                            }
-                            return [2 /*return*/];
+                            _d.label = 3;
+                        case 3:
+                            _d.trys.push([3, 8, 9, 14]);
+                            busses_1 = __asyncValues(busses);
+                            _d.label = 4;
+                        case 4: return [4 /*yield*/, busses_1.next()];
+                        case 5:
+                            if (!(busses_1_1 = _d.sent(), !busses_1_1.done)) return [3 /*break*/, 7];
+                            bus = busses_1_1.value;
+                            allBusses.appendChild(new bus_1["default"](bus[0], bus[1]).returnElement());
+                            _d.label = 6;
+                        case 6: return [3 /*break*/, 4];
+                        case 7: return [3 /*break*/, 14];
+                        case 8:
+                            e_1_1 = _d.sent();
+                            e_1 = { error: e_1_1 };
+                            return [3 /*break*/, 14];
+                        case 9:
+                            _d.trys.push([9, , 12, 13]);
+                            if (!(busses_1_1 && !busses_1_1.done && (_a = busses_1["return"]))) return [3 /*break*/, 11];
+                            return [4 /*yield*/, _a.call(busses_1)];
+                        case 10:
+                            _d.sent();
+                            _d.label = 11;
+                        case 11: return [3 /*break*/, 13];
+                        case 12:
+                            if (e_1) throw e_1.error;
+                            return [7 /*endfinally*/];
+                        case 13: return [7 /*endfinally*/];
+                        case 14: return [2 /*return*/];
                     }
                 });
             });
@@ -160,16 +200,28 @@ function initBusses() {
         var cacheURL, allBusses;
         var _this = this;
         return __generator(this, function (_a) {
-            cacheURL = process.cwd() + "/cache/busses.json";
-            allBusses = document.getElementById("allBusses");
-            // Watch for cache file changes
-            chokidar.watch(cacheURL).on("all", (function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, updateBusses()];
-                    case 1: return [2 /*return*/, _a.sent()];
-                }
-            }); }); }));
-            return [2 /*return*/];
+            switch (_a.label) {
+                case 0:
+                    cacheURL = process.cwd() + "/cache/busses.json";
+                    allBusses = document.getElementById("allBusses");
+                    return [4 /*yield*/, updateBusses()];
+                case 1:
+                    _a.sent();
+                    // Watch for cache file changes
+                    chokidar.watch(cacheURL, {
+                        awaitWriteFinish: { stabilityThreshold: 2000, pollInterval: 100 }
+                    }).on("change", (function () { return __awaiter(_this, void 0, void 0, function () {
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, updateBusses()];
+                                case 1:
+                                    _a.sent();
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); }));
+                    return [2 /*return*/];
+            }
         });
     });
 }

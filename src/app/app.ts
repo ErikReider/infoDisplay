@@ -1,4 +1,3 @@
-require("log-timestamp");
 import { app, BrowserWindow } from "electron";
 import * as cron from "node-cron";
 import { default as env } from "../env/env";

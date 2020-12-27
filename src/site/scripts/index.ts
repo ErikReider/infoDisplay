@@ -1,4 +1,3 @@
-require("log-timestamp");
 import { default as Bus } from "./bus/bus";
 import { promises as fsPromises } from "fs";
 import * as fs from "fs";
@@ -49,8 +48,11 @@ async function initWeather() {
         weatherImg.src = iconURL;
         weatherTemp.textContent = temp;
     }
+    await updateWeatherElements();
     // Watch for cache file changes
-    chokidar.watch(cacheURL).on("all", (async () => await updateWeatherElements()));
+    chokidar.watch(cacheURL, {
+        awaitWriteFinish: { stabilityThreshold: 2000, pollInterval: 100 }
+    }).on("change", (async () => await updateWeatherElements()));
 }
 
 async function initBusses() {
@@ -71,10 +73,15 @@ async function initBusses() {
         const busses: [string, any][] = Object.entries(await JSON.parse(rawData)).sort((a, b) => {
             return Number(a[0].split("_")[0]) > Number(b[0].split("_")[0]) ? 1 : -1;
         });
-        for (const bus of busses) {
+        for await (const bus of busses) {
             allBusses.appendChild(new Bus(bus[0], bus[1]).returnElement());
         }
     }
+    await updateBusses();
     // Watch for cache file changes
-    chokidar.watch(cacheURL).on("all", (async () => await updateBusses()));
+    chokidar.watch(cacheURL, {
+        awaitWriteFinish: { stabilityThreshold: 2000, pollInterval: 100 }
+    }).on("change", (async () => {
+        await updateBusses();
+    }));
 }

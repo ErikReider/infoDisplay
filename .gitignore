@@ -1,6 +1,7 @@
 busStops.json
 openWeatherMapInfo.json
 cache
+*.js
 
 # Logs
 logs

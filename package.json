@@ -4,7 +4,9 @@
   "description": "",
   "main": "./src/app/app.js",
   "scripts": {
-    "start": "electron .",
+    "start": "[[ `find ./src -name '*.js' -type f | wc -l` -eq 0 ]] && npm run build || echo ''; electron .",
+    "build": "tsc --build",
+    "clean": "find ./src -name '*.js' -type f -delete",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

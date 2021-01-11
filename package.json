@@ -18,6 +18,10 @@
   "bugs": {
     "url": "https://github.com/ErikReider/infoDisplay/issues"
   },
+  "prettier":{
+    "tabWidth": 4,
+    "proseWrap": "always"
+  },
   "homepage": "https://github.com/ErikReider/infoDisplay#readme",
   "devDependencies": {
     "@babel/preset-typescript": "^7.12.7",

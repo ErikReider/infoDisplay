@@ -24,7 +24,9 @@ function initTime() {
         const seconds = ("0" + date.getSeconds().toString()).slice(-2);
         timeElement.textContent = `${hours}:${minutes}:${seconds}`;
         // Date
-        dateMonth.textContent = date.toLocaleString("default", { month: "short" });
+        dateMonth.textContent = date.toLocaleString("default", {
+            month: "short",
+        });
         dateDay.textContent = date.getDate().toLocaleString();
         setTimeout(() => updateTime(), 1000);
     }
@@ -33,8 +35,12 @@ function initTime() {
 
 async function initWeather() {
     const cacheURL = `${process.cwd()}/cache/weather.json`;
-    const weatherImg = <HTMLImageElement>document.getElementById("weatherImage");
-    const weatherTemp = <HTMLImageElement>document.getElementById("weatherTemp");
+    const weatherImg = <HTMLImageElement>(
+        document.getElementById("weatherImage")
+    );
+    const weatherTemp = <HTMLImageElement>(
+        document.getElementById("weatherTemp")
+    );
     async function updateWeatherElements() {
         if (!fs.existsSync(cacheURL)) return;
         const rawData = await fsPromises.readFile(cacheURL, "utf-8");
@@ -50,9 +56,11 @@ async function initWeather() {
     }
     await updateWeatherElements();
     // Watch for cache file changes
-    chokidar.watch(cacheURL, {
-        awaitWriteFinish: { stabilityThreshold: 2000, pollInterval: 100 }
-    }).on("change", (async () => await updateWeatherElements()));
+    chokidar
+        .watch(cacheURL, {
+            awaitWriteFinish: { stabilityThreshold: 2000, pollInterval: 100 },
+        })
+        .on("change", async () => await updateWeatherElements());
 }
 
 async function initBusses() {
@@ -62,7 +70,7 @@ async function initBusses() {
         if (!fs.existsSync(cacheURL)) return;
         const rawData = await fsPromises.readFile(cacheURL, "utf-8");
         if (rawData === "" || Object.keys(JSON.parse(rawData)).length == 0) {
-            allBusses.innerHTML = "<span class=\"noBusses\">No Busses...</span>";
+            allBusses.innerHTML = '<span class="noBusses">No Busses...</span>';
             return;
         }
 
@@ -70,8 +78,12 @@ async function initBusses() {
             allBusses.removeChild(allBusses.lastElementChild);
         }
         // Sort by bus number
-        const busses: [string, any][] = Object.entries(await JSON.parse(rawData)).sort((a, b) => {
-            return Number(a[0].split("_")[0]) > Number(b[0].split("_")[0]) ? 1 : -1;
+        const busses: [string, any][] = Object.entries(
+            await JSON.parse(rawData)
+        ).sort((a, b) => {
+            return Number(a[0].split("_")[0]) > Number(b[0].split("_")[0])
+                ? 1
+                : -1;
         });
         for await (const bus of busses) {
             allBusses.appendChild(new Bus(bus[0], bus[1]).returnElement());
@@ -79,9 +91,12 @@ async function initBusses() {
     }
     await updateBusses();
     // Watch for cache file changes
-    chokidar.watch(cacheURL, {
-        awaitWriteFinish: { stabilityThreshold: 2000, pollInterval: 100 }
-    }).on("change", (async () => {
-        await updateBusses();
-    }));
+    chokidar
+        .watch(cacheURL, {
+            awaitWriteFinish: { stabilityThreshold: 2000, pollInterval: 100 },
+        })
+        .on("change", async () => {
+            await updateBusses();
+        });
 }
+

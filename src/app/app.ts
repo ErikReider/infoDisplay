@@ -56,18 +56,26 @@ async function initWeatherCache() {
     cron.schedule("*/5 * * * *", async () => await updateCache());
 }
 
-
 // Updates the bus.json cache file every 10 seconds with new data
 async function initBusCache() {
     const cacheURL = `${process.cwd()}/cache/busses.json`;
     async function updateCache() {
-        const stops: { [id: string]: { [id: string]: Array<{ [id: string]: string }> } } = {};
+        const stops: {
+            [id: string]: { [id: string]: Array<{ [id: string]: string }> };
+        } = {};
         for await (const url of Object.entries(env.busStops)) {
-            const data = await JSON.parse((await (await fetch(new URL(url[1] as string))).json())["Payload"]);
-            for await (const departure of Object.values(data["departures"] as JSON)) {
-                const line = `${(departure)["line"]["lineNo"]}_${url[0]}`;
+            const data = await JSON.parse(
+                (await (await fetch(new URL(url[1] as string))).json())[
+                    "Payload"
+                ]
+            );
+            for await (const departure of Object.values(
+                data["departures"] as JSON
+            )) {
+                const line = `${departure["line"]["lineNo"]}_${url[0]}`;
                 if (!stops[line]) stops[line] = {};
-                if (!stops[line][departure["area"]]) stops[line][departure["area"]] = [];
+                if (!stops[line][departure["area"]])
+                    stops[line][departure["area"]] = [];
                 stops[line][departure["area"]].push(departure);
             }
         }
@@ -76,3 +84,4 @@ async function initBusCache() {
     await updateCache();
     cron.schedule("*/10 * * * * *", async () => await updateCache());
 }
+

@@ -45,6 +45,7 @@ export default class Bus {
             }
             const time = getTime(0);
             const nextTime = getTime(1);
+            // Ugly but short
             textContainer.innerHTML += `
                 <div class="bus_direction_container">
                     <div class="bus_direction_edge bus_direction_start">

@@ -1,0 +1,29 @@
+{
+    "69_STOP": {
+        "B": [
+            {
+                "area": "B",
+                "nextDepartureTime": "00:00",
+                "nextDepartureIn": 0,
+                "line": {
+                    "lineNo": 69,
+                    "name": "69",
+                    "towards": "TOWARDS",
+                    "trafficType": 1
+                }
+            },
+            {
+                "area": "B",
+                "nextDepartureTime": "01:00",
+                "nextDepartureIn": 60,
+                "line": {
+                    "lineNo": 69,
+                    "name": "69",
+                    "towards": "TOWARDS",
+                    "trafficType": 1
+                }
+            }
+        ]
+    }
+}
+

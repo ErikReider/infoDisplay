@@ -1,0 +1,18 @@
+{
+    "weather": [
+        {
+            "id": 600,
+            "main": "Snow",
+            "description": "light snow",
+            "icon": "13n"
+        }
+    ],
+    "main": {
+        "temp": 274,
+        "feels_like": 257.64,
+        "temp_min": 264.15,
+        "temp_max": 265.15,
+        "pressure": 1012,
+        "humidity": 86
+    }
+}

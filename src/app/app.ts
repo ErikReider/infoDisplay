@@ -22,7 +22,7 @@ function createWindow(): void {
         fullscreen: prod ? true : false,
     });
 
-    window.loadFile("./src/site/index.html");
+    window.loadFile(__dirname + "/../site/index.html");
 }
 
 app.on("window-all-closed", () => {

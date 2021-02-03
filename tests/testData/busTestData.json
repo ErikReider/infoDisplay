@@ -4,7 +4,7 @@
             {
                 "area": "B",
                 "nextDepartureTime": "00:00",
-                "nextDepartureIn": 0,
+                "nextDepartureIn": 2,
                 "line": {
                     "lineNo": 69,
                     "name": "69",

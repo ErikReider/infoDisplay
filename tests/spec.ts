@@ -42,7 +42,7 @@ describe("Application launch", function () {
         return time === `${hours}:${minutes}:${seconds}`;
     });
 
-    it("Test Weather Data", async () => {
+    it("Test weather data", async () => {
         const initData = await fsPromises.readFile(
             __dirname + "/../cache/weather.json",
             "utf8"
@@ -72,6 +72,62 @@ describe("Application launch", function () {
             // Restore the original weather data
             await fsPromises.writeFile(
                 __dirname + "/../cache/weather.json",
+                initData,
+                "utf8"
+            );
+        }
+    });
+
+    it("Test bus data", async () => {
+        // Sleep if testing right before bus data refresh to pass
+        const sec = Number.parseInt(
+            new Date().getSeconds().toString().slice(-1)
+        );
+        if (sec > 7) await sleep((12 - sec) * 1000);
+
+        const initData = await fsPromises.readFile(
+            __dirname + "/../cache/busses.json",
+            "utf8"
+        );
+        const testData = await fsPromises.readFile(
+            __dirname + "/testData/busTestData.json",
+            "utf8"
+        );
+        await fsPromises.writeFile(
+            __dirname + "/../cache/busses.json",
+            testData,
+            "utf8"
+        );
+        await sleep(3000);
+
+        const busNumber: string = await application.webContents.executeJavaScript(
+            "document.getElementsByClassName('bus_line_number')[0].textContent"
+        );
+        const busStop: string = await application.webContents.executeJavaScript(
+            "document.getElementsByClassName('bus_line_name')[0].textContent"
+        );
+        const towards: string = await application.webContents.executeJavaScript(
+            "document.getElementsByClassName('bus_direction_line')[0].textContent"
+        );
+        const time: string = await application.webContents.executeJavaScript(
+            "document.getElementsByClassName('bus_direction_time')[0].textContent"
+        );
+        const nextTime: string = await application.webContents.executeJavaScript(
+            "document.getElementsByClassName('bus_direction_next_time')[0].textContent"
+        );
+
+        try {
+            assert.strictEqual(busNumber, "69");
+            assert.strictEqual(busStop, "STOP");
+            assert.strictEqual(towards, "TOWARDS");
+            assert.strictEqual(time, "2 min");
+            assert.strictEqual(nextTime.replace(/\s+/g, ""), "Next:01:00");
+        } catch (error) {
+            throw error;
+        } finally {
+            // Restore the original weather data
+            await fsPromises.writeFile(
+                __dirname + "/../cache/busses.json",
                 initData,
                 "utf8"
             );

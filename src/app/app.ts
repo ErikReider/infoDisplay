@@ -45,7 +45,7 @@ async function initCache() {
     await initBusCache();
 }
 
-// Updates the weather.json cache file every 10 mins with new data
+// Updates the weather.json cache file every 5 mins with new data
 async function initWeatherCache() {
     const cacheURL = `${process.cwd()}/cache/weather.json`;
     async function updateCache() {

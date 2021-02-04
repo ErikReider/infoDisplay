@@ -4,15 +4,15 @@ import electron from "electron";
 import path from "path";
 import { promises as fsPromises } from "fs";
 
+function sleep(ms: number) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+}
+
 describe("Application launch", function () {
     this.timeout(50000);
     var application: Application;
-
-    function sleep(ms: number) {
-        return new Promise((resolve) => {
-            setTimeout(resolve, ms);
-        });
-    }
 
     beforeEach(async () => {
         application = new Application({
@@ -41,22 +41,33 @@ describe("Application launch", function () {
         const seconds = ("0" + date.getSeconds().toString()).slice(-2);
         return time === `${hours}:${minutes}:${seconds}`;
     });
+});
+
+describe("Fetch data tests", async function () {
+    this.timeout(50000);
+    var sleepTime = 2500;
+    var application: Application;
+
+    beforeEach(async () => {
+        application = new Application({
+            path: (electron as unknown) as string,
+            args: [path.join(__dirname, "../src/app/app.js")],
+        });
+        return await application.start();
+    });
+
+    afterEach(() => {
+        if (application && application.isRunning()) return application.stop();
+    });
 
     it("Test weather data", async () => {
-        const initData = await fsPromises.readFile(
-            __dirname + "/../cache/weather.json",
-            "utf8"
-        );
+        const initData = await fsPromises.readFile(__dirname + "/../cache/weather.json", "utf8");
         const testData = await fsPromises.readFile(
             __dirname + "/testData/weatherTestData.json",
             "utf8"
         );
-        await fsPromises.writeFile(
-            __dirname + "/../cache/weather.json",
-            testData,
-            "utf8"
-        );
-        await sleep(3000);
+        await fsPromises.writeFile(__dirname + "/../cache/weather.json", testData, "utf8");
+        await sleep(sleepTime);
         const temperature = await application.webContents.executeJavaScript(
             "document.getElementById('weatherTemp').textContent"
         );
@@ -70,35 +81,18 @@ describe("Application launch", function () {
             throw error;
         } finally {
             // Restore the original weather data
-            await fsPromises.writeFile(
-                __dirname + "/../cache/weather.json",
-                initData,
-                "utf8"
-            );
+            await fsPromises.writeFile(__dirname + "/../cache/weather.json", initData, "utf8");
         }
     });
 
     it("Test bus data", async () => {
-        // Sleep if testing right before bus data refresh to pass
-        const sec = Number.parseInt(
-            new Date().getSeconds().toString().slice(-1)
-        );
-        if (sec > 7) await sleep((12 - sec) * 1000);
-
-        const initData = await fsPromises.readFile(
-            __dirname + "/../cache/busses.json",
-            "utf8"
-        );
+        const initData = await fsPromises.readFile(__dirname + "/../cache/busses.json", "utf8");
         const testData = await fsPromises.readFile(
             __dirname + "/testData/busTestData.json",
             "utf8"
         );
-        await fsPromises.writeFile(
-            __dirname + "/../cache/busses.json",
-            testData,
-            "utf8"
-        );
-        await sleep(3000);
+        await fsPromises.writeFile(__dirname + "/../cache/busses.json", testData, "utf8");
+        await sleep(sleepTime);
 
         const busNumber: string = await application.webContents.executeJavaScript(
             "document.getElementsByClassName('bus_line_number')[0].textContent"
@@ -126,11 +120,31 @@ describe("Application launch", function () {
             throw error;
         } finally {
             // Restore the original weather data
-            await fsPromises.writeFile(
-                __dirname + "/../cache/busses.json",
-                initData,
-                "utf8"
-            );
+            await fsPromises.writeFile(__dirname + "/../cache/busses.json", initData, "utf8");
         }
+    });
+});
+
+describe("Internet Tests", async function () {
+    this.timeout(50000);
+    var application: Application;
+
+    beforeEach(async () => {
+        application = new Application({
+            path: (electron as unknown) as string,
+            args: [path.join(__dirname, "../src/app/app.js")],
+        });
+        return await application.start();
+    });
+
+    afterEach(() => {
+        if (application && application.isRunning()) return application.stop();
+    });
+
+    it("Test without Internet", async () => {
+        const visible: string = await application.webContents.executeJavaScript(
+            "document.getElementById('errorBanner').getAttribute('data-visible')"
+        );
+        assert.strictEqual(visible, "true");
     });
 });

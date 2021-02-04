@@ -1,38 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
+            rel="stylesheet"
+        />
 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+            integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA=="
+            crossorigin="anonymous"
+        />
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
-        integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA=="
-        crossorigin="anonymous" />
+        <link rel="stylesheet" href="./styles/style.css" />
+        <link rel="stylesheet" href="./styles/buss.css" />
 
-    <link rel="stylesheet" href="./styles/style.css" />
-    <link rel="stylesheet" href="./styles/buss.css" />
+        <script>
+            require("./scripts/index.js");
+        </script>
+    </head>
 
-    <script>
-        require("./scripts/index.js");
-    </script>
-</head>
-
-<body style="opacity: 0; transform: scale(0.97)">
-    <div class="titleBar">
-        <div class="weather">
-            <img id="weatherImage" />
-            <div id="weatherTemp"></div>
+    <body style="opacity: 0; transform: scale(0.97)">
+        <div class="titleBar">
+            <div class="weather">
+                <img id="weatherImage" />
+                <div id="weatherTemp"></div>
+            </div>
+            <span id="timeElement"></span>
+            <div class="date">
+                <span id="dateMonth"></span>
+                <span id="dateDay"></span>
+            </div>
         </div>
-        <span id="timeElement"></span>
-        <div class="date">
-            <span id="dateMonth"></span>
-            <span id="dateDay"></span>
+        <div id="allBusses"></div>
+        <div id="errorBanner" data-visible="false" style="opacity: 0; display: none;">
+            <span>No internet connection...</span>
         </div>
-    </div>
-    <div id="allBusses"></div>
-</body>
-
+    </body>
 </html>

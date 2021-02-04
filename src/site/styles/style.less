@@ -69,4 +69,42 @@ body {
         text-align: center;
         color: white;
     }
+
+    #errorBanner {
+        position: absolute;
+        align-items: center;
+        justify-content: center;
+        height: 75px;
+        width: 100%;
+        bottom: 0;
+        background-color: yellow;
+        transition: opacity 0.3s ease-in-out;
+
+        &::before {
+            transition: inherit;
+            opacity: inherit;
+            content: "";
+            background-color: black;
+            width: inherit;
+            height: inherit;
+            position: absolute;
+            filter: blur(50px);
+            z-index: -1;
+            border-radius: inherit;
+            margin: auto;
+            left: 0;
+            top: -10%;
+            right: 0;
+            transform: scale(0.75);
+            user-select: none;
+        }
+
+        span {
+            display: inline-block;
+            position: relative;
+            margin: auto 0;
+            font-size: 1.4em;
+        }
+    }
 }
+

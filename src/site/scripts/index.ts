@@ -3,6 +3,8 @@ import { promises as fsPromises } from "fs";
 import * as fs from "fs";
 import * as chokidar from "chokidar";
 
+let internet = true;
+
 onload = async () => {
     await initWeather();
     await initBusses();
@@ -10,37 +12,14 @@ onload = async () => {
 
     document.body.style.opacity = "1";
     document.body.style.transform = "scale(1)";
-};
 
-function initTime() {
-    const timeElement = <HTMLSpanElement>document.getElementById("timeElement");
-    const dateMonth = <HTMLSpanElement>document.getElementById("dateMonth");
-    const dateDay = <HTMLSpanElement>document.getElementById("dateDay");
-    function updateTime() {
-        const date = new Date();
-        // Clock
-        const hours = ("0" + date.getHours().toString()).slice(-2);
-        const minutes = ("0" + date.getMinutes().toString()).slice(-2);
-        const seconds = ("0" + date.getSeconds().toString()).slice(-2);
-        timeElement.textContent = `${hours}:${minutes}:${seconds}`;
-        // Date
-        dateMonth.textContent = date.toLocaleString("default", {
-            month: "short",
-        });
-        dateDay.textContent = date.getDate().toLocaleString();
-        setTimeout(() => updateTime(), 1000);
-    }
-    updateTime();
-}
+    toggleInternetBanner();
+};
 
 async function initWeather() {
     const cacheURL = `${process.cwd()}/cache/weather.json`;
-    const weatherImg = <HTMLImageElement>(
-        document.getElementById("weatherImage")
-    );
-    const weatherTemp = <HTMLImageElement>(
-        document.getElementById("weatherTemp")
-    );
+    const weatherImg = <HTMLImageElement>document.getElementById("weatherImage");
+    const weatherTemp = <HTMLImageElement>document.getElementById("weatherTemp");
     async function updateWeatherElements() {
         if (!fs.existsSync(cacheURL)) return;
         const rawData = await fsPromises.readFile(cacheURL, "utf-8");
@@ -48,6 +27,11 @@ async function initWeather() {
         let iconURL = "";
         if (rawData !== "") {
             const data = await JSON.parse(rawData);
+            if (data["ERROR"] == "INTERNET") {
+                internet = false;
+                return;
+            }
+            internet = true;
             temp = `${(Number(data["main"]["temp"]) - 273.15).toFixed(0)}℃`;
             iconURL = `../assets/weatherIcons/${data["weather"][0]["icon"]}.svg`;
         }
@@ -77,13 +61,15 @@ async function initBusses() {
         while (allBusses.lastElementChild) {
             allBusses.removeChild(allBusses.lastElementChild);
         }
+        const data = await JSON.parse(rawData);
+        if (data["ERROR"] == "INTERNET") {
+            internet = false;
+            return;
+        }
+        internet = true;
         // Sort by bus number
-        const busses: [string, any][] = Object.entries(
-            await JSON.parse(rawData)
-        ).sort((a, b) => {
-            return Number(a[0].split("_")[0]) > Number(b[0].split("_")[0])
-                ? 1
-                : -1;
+        const busses: [string, any][] = Object.entries(data).sort((a, b) => {
+            return Number(a[0].split("_")[0]) > Number(b[0].split("_")[0]) ? 1 : -1;
         });
         for await (const bus of busses) {
             allBusses.appendChild(new Bus(bus[0], bus[1]).returnElement());
@@ -100,3 +86,42 @@ async function initBusses() {
         });
 }
 
+function initTime() {
+    const timeElement = <HTMLSpanElement>document.getElementById("timeElement");
+    const dateMonth = <HTMLSpanElement>document.getElementById("dateMonth");
+    const dateDay = <HTMLSpanElement>document.getElementById("dateDay");
+    function updateTime() {
+        const date = new Date();
+        // Clock
+        const hours = ("0" + date.getHours().toString()).slice(-2);
+        const minutes = ("0" + date.getMinutes().toString()).slice(-2);
+        const seconds = ("0" + date.getSeconds().toString()).slice(-2);
+        timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+        // Date
+        dateMonth.textContent = date.toLocaleString("default", {
+            month: "short",
+        });
+        dateDay.textContent = date.getDate().toLocaleString();
+        setTimeout(() => updateTime(), 1000);
+    }
+    updateTime();
+}
+
+function toggleInternetBanner() {
+    let errorBanner = <HTMLDivElement>document.getElementById("errorBanner");
+    if (internet) {
+        console.log("HAS INTERNET");
+        const duration = parseFloat(getComputedStyle(errorBanner).transitionDuration) * 1000;
+        errorBanner.style.opacity = "0";
+        setTimeout(()=> {
+            errorBanner.style.display = "none";
+        }, duration);
+        errorBanner.setAttribute("data-visible", "false");
+    } else {
+        console.log("NO INTERNET");
+        errorBanner.style.display = "flex";
+        errorBanner.clientWidth;
+        errorBanner.style.opacity = "1";
+        errorBanner.setAttribute("data-visible", "true");
+    }
+}

@@ -5,9 +5,10 @@
   "main": "./src/app/app.js",
   "scripts": {
     "start": "npm run build; electron .",
+    "noNet": "npm run build; firejail --net=none --noprofile electron .",
     "build": "tsc; for file in `find ./src -name '*.less' -type f`; do lessc --strict-imports $file `dirname $file`/`basename ${file%.*}`.css; done",
     "clean": "find ./src -name '*.css' -delete -o -name '*.js' -type f -delete",
-    "test": "mocha tests/*.js"
+    "test": "firejail --net=none --noprofile mocha tests/*.js"
   },
   "repository": {
     "type": "git",
@@ -20,7 +21,8 @@
   },
   "prettier": {
     "tabWidth": 4,
-    "proseWrap": "always"
+    "proseWrap": "always",
+    "printWidth": 100
   },
   "homepage": "https://github.com/ErikReider/infoDisplay#readme",
   "devDependencies": {

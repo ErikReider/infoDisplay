@@ -12,8 +12,6 @@ onload = async () => {
 
     document.body.style.opacity = "1";
     document.body.style.transform = "scale(1)";
-
-    toggleInternetBanner();
 };
 
 async function initWeather() {
@@ -29,9 +27,12 @@ async function initWeather() {
             const data = await JSON.parse(rawData);
             if (data["ERROR"] == "INTERNET") {
                 internet = false;
+                toggleInternetBanner();
                 return;
             }
             internet = true;
+            toggleInternetBanner();
+
             temp = `${(Number(data["main"]["temp"]) - 273.15).toFixed(0)}℃`;
             iconURL = `../assets/weatherIcons/${data["weather"][0]["icon"]}.svg`;
         }
@@ -64,9 +65,12 @@ async function initBusses() {
         const data = await JSON.parse(rawData);
         if (data["ERROR"] == "INTERNET") {
             internet = false;
+            toggleInternetBanner();
             return;
         }
         internet = true;
+        toggleInternetBanner();
+
         // Sort by bus number
         const busses: [string, any][] = Object.entries(data).sort((a, b) => {
             return Number(a[0].split("_")[0]) > Number(b[0].split("_")[0]) ? 1 : -1;
@@ -110,15 +114,17 @@ function initTime() {
 function toggleInternetBanner() {
     let errorBanner = <HTMLDivElement>document.getElementById("errorBanner");
     if (internet) {
-        console.log("HAS INTERNET");
-        const duration = parseFloat(getComputedStyle(errorBanner).transitionDuration) * 1000;
+        if (errorBanner.getAttribute("data-visible") == "false") return;
+        console.log("Internet");
+        const duration = (parseFloat(getComputedStyle(errorBanner).transitionDuration) ?? 0) * 1000;
         errorBanner.style.opacity = "0";
-        setTimeout(()=> {
+        setTimeout(() => {
             errorBanner.style.display = "none";
         }, duration);
         errorBanner.setAttribute("data-visible", "false");
     } else {
-        console.log("NO INTERNET");
+        if (errorBanner.getAttribute("data-visible") == "true") return;
+        console.log("No Internet");
         errorBanner.style.display = "flex";
         errorBanner.clientWidth;
         errorBanner.style.opacity = "1";

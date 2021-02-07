@@ -5,6 +5,7 @@
   "main": "./src/app/app.js",
   "scripts": {
     "start": "npm run build; electron .",
+    "fastStart": "electron .",
     "noNet": "npm run build; firejail --net=none --noprofile electron .",
     "build": "tsc; for file in `find ./src -name '*.less' -type f`; do lessc --strict-imports $file `dirname $file`/`basename ${file%.*}`.css; done",
     "clean": "find ./src -name '*.css' -delete -o -name '*.js' -type f -delete",

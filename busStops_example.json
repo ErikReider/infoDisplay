@@ -1,5 +1,18 @@
 {
-    "StopName1": "ApiURl1",
-    "StopName2": "ApiURl2",
-    "StopName3": "ApiURl3"
+    "StopName1": {
+        "url": "APIURL",
+        "ignore": ["BUSSNUMBER", "IF WANTED"],
+        "directions": ["DIRECTIONS", "IF WANTED"]
+    },
+    "StopName2": {
+        "url": "APIURL",
+        "ignore": ["BUSSNUMBER", "IF WANTED"],
+        "directions": ["DIRECTIONS", "IF WANTED"]
+    },
+    "StopName3": {
+        "url": "APIURL",
+        "ignore": ["BUSSNUMBER", "IF WANTED"],
+        "directions": ["DIRECTIONS", "IF WANTED"]
+    }
 }
+

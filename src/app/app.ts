@@ -74,12 +74,21 @@ async function initBusCache() {
             const stops: {
                 [id: string]: { [id: string]: Array<{ [id: string]: string }> };
             } = {};
-            for await (const url of Object.entries(env.busStops)) {
+            for await (const jsonData of Object.entries(env.busStops)) {
+                const url = (jsonData[1] as any)["url"];
                 const data = await JSON.parse(
-                    (await (await fetch(new URL(url[1] as string))).json())["Payload"]
+                    (await (await fetch(new URL(url))).json())["Payload"]
                 );
                 for await (const departure of Object.values(data["departures"] as JSON)) {
-                    const line = `${departure["line"]["lineNo"]}_${url[0]}`;
+                    const line = `${departure["line"]["lineNo"]}_${jsonData[0]}`;
+                    const ignore: number[] = (jsonData[1] as any)["ignore"] ?? [];
+
+                    // Check if line is supposed to be ignored
+                    if (ignore.includes(parseInt(line))) continue;
+                    // Check if direction is supposed to be ignored
+                    const directions: string[] = (jsonData[1] as any)["directions"] ?? [];
+                    if (directions.length > 0 && !directions.includes(departure["area"])) continue;
+
                     if (!stops[line]) stops[line] = {};
                     if (!stops[line][departure["area"]]) stops[line][departure["area"]] = [];
                     stops[line][departure["area"]].push(departure);

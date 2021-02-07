@@ -56,7 +56,8 @@ async function initWeatherCache() {
     const cacheURL = `${process.cwd()}/cache/weather.json`;
     async function updateCache() {
         try {
-            const url = `https://api.openweathermap.org/data/2.5/weather?q=${env.owmCity}&appid=${env.owmApiKey}`;
+            const owm = await env.getOWM();
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${owm.city}&appid=${owm.apiKey}`;
             await fsPromises.writeFile(cacheURL, await (await fetch(url)).text());
         } catch (error) {
             writeError(cacheURL, internetError);
@@ -74,7 +75,7 @@ async function initBusCache() {
             const stops: {
                 [id: string]: { [id: string]: Array<{ [id: string]: string }> };
             } = {};
-            for await (const jsonData of Object.entries(env.busStops)) {
+            for await (const jsonData of Object.entries(await env.getBusStops())) {
                 const url = (jsonData[1] as any)["url"];
                 const data = await JSON.parse(
                     (await (await fetch(new URL(url))).json())["Payload"]

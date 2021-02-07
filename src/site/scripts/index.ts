@@ -2,10 +2,13 @@ import { default as Bus } from "./bus/bus";
 import { promises as fsPromises } from "fs";
 import * as fs from "fs";
 import * as chokidar from "chokidar";
+import LavaLampBubbles from "lava-lamp-bubbles";
 
 let internet = true;
 
 onload = async () => {
+    new LavaLampBubbles("backgroundCanvas", 0.5, "#9C066B", "#2F004B").start();
+
     await initWeather();
     await initBusses();
     initTime();

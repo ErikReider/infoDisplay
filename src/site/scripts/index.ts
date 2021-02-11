@@ -10,7 +10,7 @@ window.onload = async () => {
     window.addEventListener("online", () => internetStatus(true));
     window.addEventListener("offline", () => internetStatus(false));
 
-    new LavaLampBubbles("backgroundCanvas", 0.5, "#9C066B", "#2F004B").start();
+    new LavaLampBubbles("backgroundCanvas", 1, "#9C066B", "#2F004B").start();
 
     await initWeather();
     await initBusses();

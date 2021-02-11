@@ -4,7 +4,6 @@
         "module": "commonjs",
         "resolveJsonModule": true,
         "moduleResolution": "node",
-        "isolatedModules": true,
         "strict": true,
         "alwaysStrict": true,
         "baseUrl": "./",

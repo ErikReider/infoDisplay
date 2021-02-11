@@ -6,7 +6,10 @@ import LavaLampBubbles from "lava-lamp-bubbles";
 
 let internet = true;
 
-onload = async () => {
+window.onload = async () => {
+    window.addEventListener("online", () => internetStatus(true));
+    window.addEventListener("offline", () => internetStatus(false));
+
     new LavaLampBubbles("backgroundCanvas", 0.5, "#9C066B", "#2F004B").start();
 
     await initWeather();
@@ -14,8 +17,12 @@ onload = async () => {
     initTime();
 
     document.body.style.opacity = "1";
-    document.body.style.transform = "scale(1)";
 };
+
+function internetStatus(online: boolean) {
+    internet = online;
+    toggleInternetBanner();
+}
 
 async function initWeather() {
     const cacheURL = `${process.cwd()}/cache/weather.json`;

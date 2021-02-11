@@ -25,8 +25,11 @@
         </script>
     </head>
 
-    <body style="opacity: 0; transform: scale(0.97)">
+    <body style="opacity: 0">
         <canvas id="backgroundCanvas"></canvas>
+        <div id="errorBanner" data-visible="false" style="opacity: 0; display: none">
+            <span>No internet connection...</span>
+        </div>
         <div class="titleBar">
             <div class="weather">
                 <img id="weatherImage" />
@@ -39,8 +42,5 @@
             </div>
         </div>
         <div id="allBusses"></div>
-        <div id="errorBanner" data-visible="false" style="opacity: 0; display: none;">
-            <span>No internet connection...</span>
-        </div>
     </body>
 </html>

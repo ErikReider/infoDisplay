@@ -4,12 +4,11 @@ import * as fs from "fs";
 import * as chokidar from "chokidar";
 import LavaLampBubbles from "lava-lamp-bubbles";
 
-let internet = true;
-
 window.onload = async () => {
     window.addEventListener("online", () => internetStatus(true));
     window.addEventListener("offline", () => internetStatus(false));
 
+    // Initialize the canvas background
     new LavaLampBubbles("backgroundCanvas", 1, "#9C066B", "#2F004B").start();
 
     await initWeather();
@@ -20,14 +19,14 @@ window.onload = async () => {
 };
 
 function internetStatus(online: boolean) {
-    internet = online;
-    toggleInternetBanner();
+    toggleInternetBanner(online);
 }
 
 async function initWeather() {
     const cacheURL = `${process.cwd()}/cache/weather.json`;
     const weatherImg = <HTMLImageElement>document.getElementById("weatherImage");
     const weatherTemp = <HTMLImageElement>document.getElementById("weatherTemp");
+
     async function updateWeatherElements() {
         if (!fs.existsSync(cacheURL)) return;
         const rawData = await fsPromises.readFile(cacheURL, "utf-8");
@@ -36,13 +35,12 @@ async function initWeather() {
         if (rawData !== "") {
             const data = await JSON.parse(rawData);
             if (data["ERROR"] == "INTERNET") {
-                internet = false;
-                toggleInternetBanner();
+                toggleInternetBanner(false);
                 return;
             }
-            internet = true;
-            toggleInternetBanner();
+            toggleInternetBanner(true);
 
+            // Converts from Kelvin to Celsius
             temp = `${(Number(data["main"]["temp"]) - 273.15).toFixed(0)}℃`;
             iconURL = `../assets/weatherIcons/${data["weather"][0]["icon"]}.svg`;
         }
@@ -50,7 +48,7 @@ async function initWeather() {
         weatherTemp.textContent = temp;
     }
     await updateWeatherElements();
-    // Watch for cache file changes
+    // Watch for cache file changes. Should be a ~2 second delay
     chokidar
         .watch(cacheURL, {
             awaitWriteFinish: { stabilityThreshold: 2000, pollInterval: 100 },
@@ -61,6 +59,7 @@ async function initWeather() {
 async function initBusses() {
     const cacheURL = `${process.cwd()}/cache/busses.json`;
     const allBusses = <HTMLDivElement>document.getElementById("allBusses");
+
     async function updateBusses() {
         if (!fs.existsSync(cacheURL)) return;
         const rawData = await fsPromises.readFile(cacheURL, "utf-8");
@@ -69,19 +68,18 @@ async function initBusses() {
             return;
         }
 
+        // Removes all previous busses from the DOM
         while (allBusses.lastElementChild) {
             allBusses.removeChild(allBusses.lastElementChild);
         }
         const data = await JSON.parse(rawData);
         if (data["ERROR"] == "INTERNET") {
-            internet = false;
-            toggleInternetBanner();
+            toggleInternetBanner(false);
             return;
         }
-        internet = true;
-        toggleInternetBanner();
+        toggleInternetBanner(true);
 
-        // Sort by bus number
+        // Sort by bus number. Each key will be BUSNUMBER_BUSSTOP
         const busses: [string, any][] = Object.entries(data).sort((a, b) => {
             return Number(a[0].split("_")[0]) > Number(b[0].split("_")[0]) ? 1 : -1;
         });
@@ -90,7 +88,7 @@ async function initBusses() {
         }
     }
     await updateBusses();
-    // Watch for cache file changes
+    // Watch for cache file changes. Should be a ~2 second delay
     chokidar
         .watch(cacheURL, {
             awaitWriteFinish: { stabilityThreshold: 2000, pollInterval: 100 },
@@ -102,28 +100,29 @@ async function initBusses() {
 
 function initTime() {
     const timeElement = <HTMLSpanElement>document.getElementById("timeElement");
-    const dateMonth = <HTMLSpanElement>document.getElementById("dateMonth");
-    const dateDay = <HTMLSpanElement>document.getElementById("dateDay");
+    const monthElement = <HTMLSpanElement>document.getElementById("dateMonth");
+    const dayElement = <HTMLSpanElement>document.getElementById("dateDay");
     function updateTime() {
         const date = new Date();
         // Clock
+        // Add 0 to beginging if length isn't 2, ex 05 instead 0f 5
         const hours = ("0" + date.getHours().toString()).slice(-2);
         const minutes = ("0" + date.getMinutes().toString()).slice(-2);
         const seconds = ("0" + date.getSeconds().toString()).slice(-2);
         timeElement.textContent = `${hours}:${minutes}:${seconds}`;
         // Date
-        dateMonth.textContent = date.toLocaleString("default", {
+        monthElement.textContent = date.toLocaleString("default", {
             month: "short",
         });
-        dateDay.textContent = date.getDate().toLocaleString();
+        dayElement.textContent = date.getDate().toLocaleString();
         setTimeout(() => updateTime(), 1000);
     }
     updateTime();
 }
 
-function toggleInternetBanner() {
-    let errorBanner = <HTMLDivElement>document.getElementById("errorBanner");
-    if (internet) {
+function toggleInternetBanner(hasInternet: boolean) {
+    const errorBanner = <HTMLDivElement>document.getElementById("errorBanner");
+    if (hasInternet) {
         if (errorBanner.getAttribute("data-visible") == "false") return;
         console.log("Internet");
         const duration = (parseFloat(getComputedStyle(errorBanner).transitionDuration) ?? 0) * 1000;

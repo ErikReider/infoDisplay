@@ -5,23 +5,24 @@ import { default as fetch } from "node-fetch";
 import { promises as fsPromises } from "fs";
 import * as fs from "fs";
 
-const prod = false;
+const production = false;
 
+// The error string used in the json cache to indicate a loss of intnernet
 const internetError = '{"ERROR": "INTERNET"}';
 
 function createWindow(): void {
     const window = new BrowserWindow({
         webPreferences: {
             nodeIntegration: true,
-            devTools: prod ? false : true,
+            devTools: production ? false : true,
             contextIsolation: false,
             enableRemoteModule: true,
         },
-        alwaysOnTop: prod ? true : false,
-        kiosk: prod ? true : false,
+        alwaysOnTop: production ? true : false,
+        kiosk: production ? true : false,
         autoHideMenuBar: true,
         closable: false,
-        fullscreen: prod ? true : false,
+        fullscreen: production ? true : false,
     });
 
     window.loadFile(__dirname + "/../site/index.html");
@@ -40,15 +41,17 @@ app.on("ready", async () => {
     createWindow();
 });
 
-async function writeError(path: string, data: string) {
-    await fsPromises.writeFile(path, data);
-}
-
 async function initCache() {
     const cacheFolderURL = `${process.cwd()}/cache`;
+    // Create cache folder if not created
     if (!fs.existsSync(cacheFolderURL)) await fsPromises.mkdir(cacheFolderURL);
     await initWeatherCache();
     await initBusCache();
+}
+
+// Writes the error string to the specified path
+async function writeError(path: string, data: string) {
+    await fsPromises.writeFile(path, data);
 }
 
 // Updates the weather.json cache file every 10 mins with new data
@@ -75,6 +78,7 @@ async function initBusCache() {
             const stops: {
                 [id: string]: { [id: string]: Array<{ [id: string]: string }> };
             } = {};
+            // Sort and move data into a workable json
             for await (const jsonData of Object.entries(await env.getBusStops())) {
                 const url = (jsonData[1] as any)["url"];
                 const data = await JSON.parse(

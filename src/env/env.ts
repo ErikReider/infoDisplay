@@ -1,5 +1,4 @@
 import * as fs from "fs";
-// import * as owmKey from "./../../openWeatherMapInfo.json";
 
 export class Owm {
     public apiKey = "";

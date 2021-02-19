@@ -3,14 +3,14 @@ import { promises as fsPromises } from "fs";
 import * as fs from "fs";
 import * as chokidar from "chokidar";
 import LavaLampBubbles from "lava-lamp-bubbles";
-import Environment from "../../env/env";
+import { Environment } from "../../env/env";
 
 window.onload = async () => {
     window.addEventListener("online", () => toggleInternetBanner(true));
     window.addEventListener("offline", () => toggleInternetBanner(false));
 
     // Initialize the canvas background
-    new LavaLampBubbles("backgroundCanvas", 1, "#9C066B", "#2F004B").start();
+    // new LavaLampBubbles("backgroundCanvas", 2, "#9C066B", "#2F004B").start();
 
     await initWeather();
     await initBusses();
@@ -31,8 +31,10 @@ async function initWeather() {
         let iconURL = "noInternet.svg";
         if (rawData !== "") {
             const data = await JSON.parse(rawData);
-            if (data["ERROR"] == "INTERNET") {
+            if (data["ERROR"] === Environment.InternetError) {
                 toggleInternetBanner(false);
+            } else if (data["ERROR"] === Environment.JSONError) {
+                toggleAlert(true, (data["ERROR"] as Error));
             } else {
                 toggleInternetBanner(true);
                 // Converts from Kelvin to Celsius
@@ -70,7 +72,9 @@ async function initBusses() {
             allBusses.removeChild(allBusses.lastElementChild);
         }
         const data = await JSON.parse(rawData);
-        if (data["ERROR"] == Environment.InternetError) {
+        if (
+            new RegExp(Environment.InternetError + "|" + Environment.JSONError).test(data["ERROR"])
+        ) {
             toggleInternetBanner(false);
             return;
         }
@@ -118,10 +122,29 @@ function initTime() {
     updateTime();
 }
 
+function toggleAlert(visible: boolean, error: Error) {
+    const alert = <HTMLDivElement>document.getElementById("alert");
+    if (visible) {
+        if (alert.getAttribute("data-visible") === "false") return;
+        const duration = (parseFloat(getComputedStyle(alert).transitionDuration) ?? 0) * 1000;
+        alert.style.opacity = "0";
+        setTimeout(() => {
+            alert.style.display = "none";
+        }, duration);
+        alert.setAttribute("data-visible", "false");
+    } else {
+        if (alert.getAttribute("data-visible") === "true") return;
+        alert.style.display = "flex";
+        alert.clientWidth;
+        alert.style.opacity = "1";
+        alert.setAttribute("data-visible", "true");
+    }
+}
+
 function toggleInternetBanner(hasInternet: boolean) {
     const errorBanner = <HTMLDivElement>document.getElementById("errorBanner");
     if (hasInternet) {
-        if (errorBanner.getAttribute("data-visible") == "false") return;
+        if (errorBanner.getAttribute("data-visible") === "false") return;
         console.log("Internet");
         const duration = (parseFloat(getComputedStyle(errorBanner).transitionDuration) ?? 0) * 1000;
         errorBanner.style.opacity = "0";
@@ -130,7 +153,7 @@ function toggleInternetBanner(hasInternet: boolean) {
         }, duration);
         errorBanner.setAttribute("data-visible", "false");
     } else {
-        if (errorBanner.getAttribute("data-visible") == "true") return;
+        if (errorBanner.getAttribute("data-visible") === "true") return;
         console.log("No Internet");
         errorBanner.style.display = "flex";
         errorBanner.clientWidth;

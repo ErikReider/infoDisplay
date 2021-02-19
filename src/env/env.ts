@@ -9,19 +9,29 @@ export class Owm {
     }
 }
 
-export default class Environment {
+export class Environment {
     public static async getBusStops() {
-        return await JSON.parse(
-            fs.readFileSync(`${process.cwd()}/busStops.json`, { encoding: "utf-8" })
-        );
+        try {
+            return await JSON.parse(
+                fs.readFileSync(`${process.cwd()}/busStops.json`, { encoding: "utf-8" })
+            );
+        } catch (error) {
+            const e = error as Error;
+            return e;
+        }
     }
 
     public static async getOWM() {
-        const info = await JSON.parse(
-            fs.readFileSync(`${process.cwd()}/openWeatherMapInfo.json`, { encoding: "utf-8" })
-        );
-        return new Owm(info["key"], info["cityName"]);
+        try {
+            const info = await JSON.parse(
+                fs.readFileSync(`${process.cwd()}/openWeatherMapInfo.json`, { encoding: "utf-8" })
+            );
+            return new Owm(info["key"], info["cityName"]);
+        } catch (error) {
+            return error;
+        }
     }
 
     public static readonly InternetError = "INTERNET";
+    public static readonly JSONError = "JSON";
 }

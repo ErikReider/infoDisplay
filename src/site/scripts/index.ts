@@ -31,12 +31,13 @@ async function initWeather() {
         let iconURL = "noInternet.svg";
         if (rawData !== "") {
             const data = await JSON.parse(rawData);
-            if (data["ERROR"] === Environment.InternetError) {
+            if ((data["ERROR"] ?? [])["type"] === Environment.InternetError) {
                 toggleInternetBanner(false);
-            } else if (data["ERROR"] === Environment.JSONError) {
-                toggleAlert(true, (data["ERROR"] as Error));
+            } else if ((data["ERROR"] ?? [])["type"] === Environment.JSONError) {
+                toggleAlert(true, data["ERROR"] as Error);
             } else {
                 toggleInternetBanner(true);
+                toggleAlert(false, Error());
                 // Converts from Kelvin to Celsius
                 temp = `${(Number(data["main"]["temp"]) - 273.15).toFixed(0)}℃`;
                 iconURL = `${data["weather"][0]["icon"]}.svg`;
@@ -72,13 +73,15 @@ async function initBusses() {
             allBusses.removeChild(allBusses.lastElementChild);
         }
         const data = await JSON.parse(rawData);
-        if (
-            new RegExp(Environment.InternetError + "|" + Environment.JSONError).test(data["ERROR"])
-        ) {
+        if ((data["ERROR"] ?? [])["type"] === Environment.InternetError) {
             toggleInternetBanner(false);
+            return;
+        } else if ((data["ERROR"] ?? [])["type"] === Environment.JSONError) {
+            toggleAlert(true, data["ERROR"] as Error);
             return;
         }
         toggleInternetBanner(true);
+        toggleAlert(false, Error());
 
         // Sort by bus number. Each key will be BUSNUMBER_BUSSTOP
         const busses: [string, any][] = Object.entries(data).sort((a, b) => {
@@ -122,9 +125,20 @@ function initTime() {
     updateTime();
 }
 
-function toggleAlert(visible: boolean, error: Error) {
+function toggleAlert(show: boolean, error: Error) {
     const alert = <HTMLDivElement>document.getElementById("alert");
-    if (visible) {
+    const alertTitle = <HTMLSpanElement>document.getElementById("alertTitle");
+    const alertMessage = <HTMLSpanElement>document.getElementById("alertMessage");
+
+    alertTitle.innerText = error.name;
+    alertMessage.innerText = error.stack?.toString() ?? "";
+    if (show) {
+        if (alert.getAttribute("data-visible") === "true") return;
+        alert.style.display = "flex";
+        alert.clientWidth;
+        alert.style.opacity = "1";
+        alert.setAttribute("data-visible", "true");
+    } else {
         if (alert.getAttribute("data-visible") === "false") return;
         const duration = (parseFloat(getComputedStyle(alert).transitionDuration) ?? 0) * 1000;
         alert.style.opacity = "0";
@@ -132,12 +146,6 @@ function toggleAlert(visible: boolean, error: Error) {
             alert.style.display = "none";
         }, duration);
         alert.setAttribute("data-visible", "false");
-    } else {
-        if (alert.getAttribute("data-visible") === "true") return;
-        alert.style.display = "flex";
-        alert.clientWidth;
-        alert.style.opacity = "1";
-        alert.setAttribute("data-visible", "true");
     }
 }
 

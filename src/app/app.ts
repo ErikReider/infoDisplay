@@ -55,10 +55,10 @@ async function handleError(error: Error, path: string) {
     let errorType = "";
     if (error.name === "ENOTFOUND") {
         // Internet Error
-        console.log("NO INTERNET");
+        errorType = Environment.InternetError;
     } else if (new RegExp("SyntaxError|JSON").test(error.message)) {
         // Json Syntax Error
-        console.log("JSON SYNTAX ERROR");
+        errorType = Environment.JSONError;
     } else {
         console.log(error);
         return;

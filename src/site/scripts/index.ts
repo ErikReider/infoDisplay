@@ -6,8 +6,8 @@ import LavaLampBubbles from "lava-lamp-bubbles";
 import Environment from "../../env/env";
 
 window.onload = async () => {
-    window.addEventListener("online", () => internetStatus(true));
-    window.addEventListener("offline", () => internetStatus(false));
+    window.addEventListener("online", () => toggleInternetBanner(true));
+    window.addEventListener("offline", () => toggleInternetBanner(false));
 
     // Initialize the canvas background
     new LavaLampBubbles("backgroundCanvas", 1, "#9C066B", "#2F004B").start();
@@ -19,10 +19,6 @@ window.onload = async () => {
     document.body.style.opacity = "1";
 };
 
-function internetStatus(online: boolean) {
-    toggleInternetBanner(online);
-}
-
 async function initWeather() {
     const cacheURL = `${process.cwd()}/cache/weather.json`;
     const weatherImg = <HTMLImageElement>document.getElementById("weatherImage");
@@ -32,20 +28,19 @@ async function initWeather() {
         if (!fs.existsSync(cacheURL)) return;
         const rawData = await fsPromises.readFile(cacheURL, "utf-8");
         let temp = "No data";
-        let iconURL = "";
+        let iconURL = "noInternet.svg";
         if (rawData !== "") {
             const data = await JSON.parse(rawData);
             if (data["ERROR"] == "INTERNET") {
                 toggleInternetBanner(false);
-                return;
+            } else {
+                toggleInternetBanner(true);
+                // Converts from Kelvin to Celsius
+                temp = `${(Number(data["main"]["temp"]) - 273.15).toFixed(0)}℃`;
+                iconURL = `${data["weather"][0]["icon"]}.svg`;
             }
-            toggleInternetBanner(true);
-
-            // Converts from Kelvin to Celsius
-            temp = `${(Number(data["main"]["temp"]) - 273.15).toFixed(0)}℃`;
-            iconURL = `../assets/weatherIcons/${data["weather"][0]["icon"]}.svg`;
         }
-        weatherImg.src = iconURL;
+        weatherImg.src = `../assets/weatherIcons/${iconURL}`;
         weatherTemp.textContent = temp;
     }
     await updateWeatherElements();

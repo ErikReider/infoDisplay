@@ -101,4 +101,42 @@ body {
             font-size: 1.4em;
         }
     }
+
+    #alert {
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        position: fixed;
+        z-index: 10000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        div {
+            border-radius: 10px;
+            background-color: @overlay-color-fill;
+            color: white;
+            height: 80vh;
+            width: 80vw;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: auto;
+
+            #alertTitle {
+                word-wrap: break-word;
+                display: block;
+                font-size: 3em;
+                margin-bottom: 10px;
+            }
+
+            #alertMessage {
+                user-select: text;
+                display: block;
+                font-size: 1em;
+                opacity: 0.7;
+                overflow: auto;
+            }
+        }
+    }
 }

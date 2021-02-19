@@ -12,7 +12,8 @@
     "StopName3": {
         "url": "APIURL",
         "ignore": ["BUSSNUMBER", "IF WANTED"],
-        "directions": ["DIRECTIONS", "IF WANTED"]
+        "directions": ["DIRECTIONS", "IF WANTED"],
+        "minLineNumber": 100
     }
 }
 

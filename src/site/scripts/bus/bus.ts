@@ -16,7 +16,7 @@ export default class Bus {
         const cityBus = 100 > Number(this.lineNumber);
         const lineColor = cityBus ? "#30921C" : "#DBBD2C";
         const lineTextColor = cityBus ? "white" : "black";
-        // Ugly but shorter than creating elements manually
+        // Ugly but shorter than creating elements manually. Would be easy to use React
         this.element.innerHTML = `
             <div class="bus_line" style="background-color:${lineColor}">
                 <span class="bus_line_number" style="color:${lineTextColor}">${this.lineNumber}</span>
@@ -48,7 +48,7 @@ export default class Bus {
             }
             const currentTime = getTime(0);
             const nextTime = getTime(1);
-            // Ugly but shorter than creating elements manually
+            // Ugly but shorter than creating elements manually. Would be easy to use React
             busInfoParent.innerHTML += `
                 <div class="bus_direction_container">
                     <div class="bus_direction_edge bus_direction_start">

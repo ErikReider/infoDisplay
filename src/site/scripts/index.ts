@@ -1,8 +1,9 @@
-import { default as Bus } from "./bus/bus";
+import Bus from "./bus/bus";
 import { promises as fsPromises } from "fs";
 import * as fs from "fs";
 import * as chokidar from "chokidar";
 import LavaLampBubbles from "lava-lamp-bubbles";
+import Environment from "../../env/env";
 
 window.onload = async () => {
     window.addEventListener("online", () => internetStatus(true));
@@ -49,6 +50,7 @@ async function initWeather() {
     }
     await updateWeatherElements();
     // Watch for cache file changes. Should be a ~2 second delay
+    // to make sure that the file has been fully written to
     chokidar
         .watch(cacheURL, {
             awaitWriteFinish: { stabilityThreshold: 2000, pollInterval: 100 },
@@ -73,7 +75,7 @@ async function initBusses() {
             allBusses.removeChild(allBusses.lastElementChild);
         }
         const data = await JSON.parse(rawData);
-        if (data["ERROR"] == "INTERNET") {
+        if (data["ERROR"] == Environment.InternetError) {
             toggleInternetBanner(false);
             return;
         }
@@ -89,6 +91,7 @@ async function initBusses() {
     }
     await updateBusses();
     // Watch for cache file changes. Should be a ~2 second delay
+    // to make sure that the file has been fully written to
     chokidar
         .watch(cacheURL, {
             awaitWriteFinish: { stabilityThreshold: 2000, pollInterval: 100 },

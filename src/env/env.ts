@@ -22,4 +22,6 @@ export default class Environment {
         );
         return new Owm(info["key"], info["cityName"]);
     }
+
+    public static readonly InternetError = "INTERNET";
 }

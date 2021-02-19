@@ -1,14 +1,14 @@
 import { app, BrowserWindow } from "electron";
 import * as cron from "node-cron";
-import { default as env } from "../env/env";
-import { default as fetch } from "node-fetch";
+import Environment from "../env/env";
+import fetch from "node-fetch";
 import { promises as fsPromises } from "fs";
 import * as fs from "fs";
 
 const production = false;
 
 // The error string used in the json cache to indicate a loss of intnernet
-const internetError = '{"ERROR": "INTERNET"}';
+const internetError = `{"ERROR": "${Environment.InternetError}"}`;
 
 function createWindow(): void {
     const window = new BrowserWindow({
@@ -59,11 +59,15 @@ async function initWeatherCache() {
     const cacheURL = `${process.cwd()}/cache/weather.json`;
     async function updateCache() {
         try {
-            const owm = await env.getOWM();
+            const owm = await Environment.getOWM();
             const url = `https://api.openweathermap.org/data/2.5/weather?q=${owm.city}&appid=${owm.apiKey}`;
             await fsPromises.writeFile(cacheURL, await (await fetch(url)).text());
         } catch (error) {
-            writeError(cacheURL, internetError);
+            if (error.code === "ENOTFOUND") {
+                writeError(cacheURL, internetError);
+            } else {
+                console.log(error);
+            }
         }
     }
     await updateCache();
@@ -79,17 +83,17 @@ async function initBusCache() {
                 [id: string]: { [id: string]: Array<{ [id: string]: string }> };
             } = {};
             // Sort and move data into a workable json
-            for await (const jsonData of Object.entries(await env.getBusStops())) {
+            for await (const jsonData of Object.entries(await Environment.getBusStops())) {
                 const url = (jsonData[1] as any)["url"];
-                const data = await JSON.parse(
-                    (await (await fetch(new URL(url))).json())["Payload"]
-                );
+                const data = await JSON.parse((await (await fetch(url)).json())["Payload"]);
                 for await (const departure of Object.values(data["departures"] as JSON)) {
                     const line = `${departure["line"]["lineNo"]}_${jsonData[0]}`;
-                    const ignore: number[] = (jsonData[1] as any)["ignore"] ?? [];
+                    const lineInt = parseInt(line);
 
                     // Check if line is supposed to be ignored
-                    if (ignore.includes(parseInt(line))) continue;
+                    if (((jsonData[1] as any)["ignore"] ?? []).includes(lineInt)) continue;
+                    // Check if line number is smaller than limit
+                    if (lineInt < (jsonData[1] as any)["minLineNumber"] ?? 0) continue;
                     // Check if direction is supposed to be ignored
                     const directions: string[] = (jsonData[1] as any)["directions"] ?? [];
                     if (directions.length > 0 && !directions.includes(departure["area"])) continue;
@@ -101,7 +105,11 @@ async function initBusCache() {
             }
             await fsPromises.writeFile(cacheURL, JSON.stringify(stops));
         } catch (error) {
-            writeError(cacheURL, internetError);
+            if (error.code === "ENOTFOUND") {
+                writeError(cacheURL, internetError);
+            } else {
+                console.log(error);
+            }
         }
     }
     await updateCache();

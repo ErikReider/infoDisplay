@@ -1,10 +1,13 @@
 @import "./colors.less";
 
+@margin: 10px;
+
 .bus {
     backdrop-filter: @backdrop-filter;
     background-color: @overlay-color;
-    margin: 10px;
+    margin: @margin;
     padding: 15px;
+    width: calc(100vw - @margin * 2);
     box-sizing: border-box;
     display: flex;
     flex-direction: row;

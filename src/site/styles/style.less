@@ -1,6 +1,9 @@
 @import "./colors.less";
 
+@titlebarHeight: 120px;
+
 body {
+    overflow-y: hidden;
     margin: 0;
     min-height: 100vh;
     background-image: radial-gradient(#221d33 0%, #1e1b2d 75%);
@@ -27,7 +30,8 @@ body {
         padding: 10px;
         color: white;
         background-color: @overlay-color;
-        height: 100px;
+        height: @titlebarHeight;
+        box-sizing: border-box;
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -71,6 +75,15 @@ body {
             align-items: center;
             font-size: 2.4em;
         }
+    }
+
+    #allBusses {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        max-height: calc(100vh - @titlebarHeight);
+        overflow: hidden;
+        transition: margin 1s ease-in-out;
     }
 
     .noBusses {

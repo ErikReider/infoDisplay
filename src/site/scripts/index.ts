@@ -16,6 +16,8 @@ window.onload = async () => {
     await initBusses();
     initTime();
 
+    scrollBusses(4000);
+
     document.body.style.opacity = "1";
 };
 
@@ -125,6 +127,17 @@ function initTime() {
     updateTime();
 }
 
+function scrollBusses(delay: number) {
+    const allBusses = <HTMLDivElement>document.getElementById("allBusses");
+    // allBusses.style.marginLeft = "-400vw";
+    setInterval(() => {
+        allBusses.style.marginLeft =
+            allBusses.clientWidth == allBusses.scrollWidth
+                ? "0"
+                : `${parseInt(allBusses.style.marginLeft || "0") - 100}vw`;
+    }, delay + parseInt(getComputedStyle(allBusses).transitionDuration || "0") * 1000);
+}
+
 function toggleAlert(show: boolean, error: Error) {
     const alert = <HTMLDivElement>document.getElementById("alert");
     const alertTitle = <HTMLSpanElement>document.getElementById("alertTitle");
@@ -140,11 +153,10 @@ function toggleAlert(show: boolean, error: Error) {
         alert.setAttribute("data-visible", "true");
     } else {
         if (alert.getAttribute("data-visible") === "false") return;
-        const duration = (parseFloat(getComputedStyle(alert).transitionDuration) ?? 0) * 1000;
         alert.style.opacity = "0";
         setTimeout(() => {
             alert.style.display = "none";
-        }, duration);
+        }, parseFloat(getComputedStyle(alert).transitionDuration || "0") * 1000);
         alert.setAttribute("data-visible", "false");
     }
 }
@@ -154,11 +166,10 @@ function toggleInternetBanner(hasInternet: boolean) {
     if (hasInternet) {
         if (errorBanner.getAttribute("data-visible") === "false") return;
         console.log("Internet");
-        const duration = (parseFloat(getComputedStyle(errorBanner).transitionDuration) ?? 0) * 1000;
         errorBanner.style.opacity = "0";
         setTimeout(() => {
             errorBanner.style.display = "none";
-        }, duration);
+        }, parseFloat(getComputedStyle(errorBanner).transitionDuration || "0") * 1000);
         errorBanner.setAttribute("data-visible", "false");
     } else {
         if (errorBanner.getAttribute("data-visible") === "true") return;

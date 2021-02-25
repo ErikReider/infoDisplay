@@ -7,9 +7,6 @@ import * as fs from "fs";
 
 const production = false;
 
-// The error string used in the json cache to indicate a loss of intnernet
-const internetError = `{"ERROR": "${Environment.InternetError}"}`;
-const jsonError = `{"ERROR": "${Environment.JSONError}"}`;
 
 function createWindow(): void {
     const window = new BrowserWindow({
